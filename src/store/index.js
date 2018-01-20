@@ -1,16 +1,19 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import * as actions from './actions.js'
-import * as getters from 'getters.js'
+import * as actions from './actions'
+import * as getters from './getters'
 import state from './state'
-import mutations from './mutations.js'
+import mutations from './mutations'
+import createLogger from 'vuex/dist/logger'
 
 Vue.use(Vuex)
 
-const debug = process.env.Node
-export default new Vue.Store({
+const debug = process.env.NODE_ENV !== 'production'
+export default new Vuex.Store({
   actions,
   getters,
   state,
-  mutations
+  mutations,
+  strict: debug,
+  plugins: debug ? [createLogger()] : []
 })
