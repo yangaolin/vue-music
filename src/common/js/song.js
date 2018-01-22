@@ -10,3 +10,24 @@ export default class Song{
     this.url = url
   }
 }
+
+export function creatSong(musicData) {
+    return new Song({
+        id:musicData.songid,
+        mid: musicData.songmid,
+        singer: filterSinger(musicData.singer),
+        name: musicData.songname,
+        album: musicData.albumname
+    })
+}
+
+function filterSinger(singer) {
+    let ret = []
+    if(!singer) {
+      return ''
+    }
+    singer.forEach((s) => {
+      ret.push(s.name)
+    })
+    return ret.join('/')
+}

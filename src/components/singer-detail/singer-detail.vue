@@ -10,7 +10,9 @@
   import {ERR_OK} from 'api/config'
   export default {
     data() {
-
+      return {
+        song: []
+      }
     },
     computed: {
       ...mapGetters([
@@ -33,7 +35,10 @@
         })
       },
       _normalizeSongs(list) {
-        
+        let ret = []
+        list.forEach((item) => {
+          let {musicData} = item
+        })
       }
     }
   }
