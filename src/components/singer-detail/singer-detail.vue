@@ -9,6 +9,9 @@
   import {getSingerDetail} from 'api/singer'
   import {ERR_OK} from 'api/config'
   export default {
+    data() {
+
+    },
     computed: {
       ...mapGetters([
         'singer'
@@ -28,6 +31,9 @@
             console.log(res.data.list)
           }
         })
+      },
+      _normalizeSongs(list) {
+        
       }
     }
   }
