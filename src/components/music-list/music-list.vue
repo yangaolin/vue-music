@@ -5,9 +5,10 @@
     </div>
     <h1 class="title" v-html="title"></h1>
     <div class="bg-image" :style="bgStyle" ref="bgImage">
-      <div class="filter"></div>
+      <div class="filter" ref="filter"></div>
     </div>
-    <scroll :data="songs" class="list" ref="list">
+    <div class="bg-layer" ref="layer"></div>
+    <scroll @scroll="scroll" :probe-type="probeType" :listen-scroll="listenScroll" :data="songs" class="list" ref="list">
       <div class="song-list-wrapper">
         <song-list :songs="songs"></song-list>
       </div>
@@ -18,6 +19,12 @@
 <script type="text/ecmascript-6">
   import Scroll from 'base/scroll/scroll'
   import SongList from 'base/song-list/song-list'
+  import {prefixStyle} from 'common/js/dom'
+
+  const RESERVEL_HEIGHT = 40
+  const transform = prefixStyle('transform')
+  const backdrop = prefixStyle('backdrop-filter')
+
   export default {
     props: {
       bgImage: {
@@ -33,13 +40,59 @@
         default: ''
       }
     },
+    created() {
+      this.probeType = 3
+      this.listenScroll = true
+    },
+    data() {
+      return {
+        scrollY: 0
+      }
+    },
     computed: {
       bgStyle() {
         return `background-image: url(${this.bgImage})`
       }
     },
     mounted() {
+      this.imageHeight = this.$refs.bgImage.clientHeight
+      this.minTranslateY = -this.imageHeight + RESERVEL_HEIGHT
       this.$refs.list.$el.style.top = `${this.$refs.bgImage.clientHeight}px`
+    },
+    methods: {
+      scroll(pos) {
+        this.scrollY = pos.y
+      }
+    },
+    watch: {
+      scrollY(newY) {
+        let translateY = Math.max(this.minTranslateY,newY)
+        let zIndex = 0
+        let scale = 1 
+        let blur = 0
+        this.$refs.layer.style[transform] = `translate3d(0,${translateY}px,0)`
+
+        const percent = Math.abs(newY / this.imageHeight)
+        
+        if(newY < this.minTranslateY){
+          zIndex = 10
+          this.$refs.bgImage.style.paddingTop = 0
+          this.$refs.bgImage.style.height = `${RESERVEL_HEIGHT}px`
+        }else{
+          zIndex = 0
+          this.$refs.bgImage.style.paddingTop = '70%'
+          this.$refs.bgImage.style.height = 0
+        }
+        if(newY > 0) {
+          zIndex = 10
+          scale = 1 + percent
+        }else{
+          blur = Math.min(20 * percent, 20)
+        }
+        this.$refs.filter.style[backdrop] = `blur(${blur}px)`
+        this.$refs.bgImage.style.zIndex = zIndex
+        this.$refs.bgImage.style[transform] = `scale(${scale})`
+      }
     },
     components: {
       Scroll,
