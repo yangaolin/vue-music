@@ -6,7 +6,7 @@
     <h1 class="title" v-html="title"></h1>
     <div class="bg-image" :style="bgStyle" ref="bgImage">
       <div class="play-wrapper">
-        <div class="play" v-show="songs.length>0"> 
+        <div class="play" v-show="songs.length>0" ref="playBtn"> 
           <i class="icon-play"></i>
           <span class="text">随机播放全部</span>
         </div>
@@ -18,6 +18,9 @@
       <div class="song-list-wrapper">
         <song-list :songs="songs"></song-list>
       </div>
+      <div class="loading-container" v-show="!songs.length">
+        <loading></loading>
+      </div>
     </scroll>
   </div>
 </template>
@@ -25,6 +28,7 @@
 <script type="text/ecmascript-6">
   import Scroll from 'base/scroll/scroll'
   import SongList from 'base/song-list/song-list'
+  import Loading from 'base/loading/loading'
   import {prefixStyle} from 'common/js/dom'
 
   const RESERVEL_HEIGHT = 40
@@ -87,10 +91,12 @@
           zIndex = 10
           this.$refs.bgImage.style.paddingTop = 0
           this.$refs.bgImage.style.height = `${RESERVEL_HEIGHT}px`
+          this.$refs.playBtn.style.display = 'none'
         }else{
           zIndex = 0
           this.$refs.bgImage.style.paddingTop = '70%'
           this.$refs.bgImage.style.height = 0
+          this.$refs.playBtn.style.display = ''
         }
         if(newY > 0) {
           zIndex = 10
@@ -105,7 +111,8 @@
     },
     components: {
       Scroll,
-      SongList
+      SongList,
+      Loading
     }
   }
 </script>
