@@ -1,13 +1,15 @@
-var path = require('path')
-var utils = require('./utils')
-var config = require('../config')
-var vueLoaderConfig = require('./vue-loader.conf')
+'use strict'
+const path = require('path')
+const utils = require('./utils')
+const config = require('../config')
+const vueLoaderConfig = require('./vue-loader.conf')
 
 function resolve (dir) {
   return path.join(__dirname, '..', dir)
 }
 
 module.exports = {
+  context: path.resolve(__dirname, '../'),
   entry: {
     app: './src/main.js'
   },
@@ -21,10 +23,10 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.vue', '.json'],
     alias: {
-      'src': resolve('src'),
-      'common':resolve('src/common'),
-      'components':resolve('src/components'),
-      'base':resolve('src/base'),
+      '@': resolve('src'),
+      'common': resolve('src/common'),
+      'components': resolve('src/components'),
+      'base': resolve('src/base'),
       'api': resolve('src/api')
     }
   },

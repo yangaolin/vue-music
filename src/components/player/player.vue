@@ -57,6 +57,7 @@
         </div>
       </div>
     </transition>
+    <audio :src="currentSong.url" ref="audio"></audio>
   </div> 
 </template>
 
@@ -78,9 +79,18 @@ export default {
   computed: {
     ...mapGetters(["fullScreen", "playlist", "currentSong"])
   },
+  watch: {
+    currentSong() {
+        this.$nextTick(()=>{
+
+          console.log(this.currentSong.url)
+          this.$refs.audio.play()
+        })
+    }
+  },
   methods: {
     ...mapMutations({
-      setFullScreen: "SET_FULL_SCRREN"
+      setFullScreen: "SET_FULL_SCREEN"
     }),
     back() {
       this.setFullScreen(false)

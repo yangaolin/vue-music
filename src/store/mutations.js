@@ -1,13 +1,13 @@
-import * as types from './mutation-types.js'
+import * as types from './mutation-types'
 
-const mutations = {
-  [types.SET_SINGER](state, singer){
+const matutaions = {
+  [types.SET_SINGER](state, singer) {
     state.singer = singer
   },
   [types.SET_PLAYING_STATE](state, flag) {
     state.playing = flag
   },
-  [types.SET_FULL_SCRREN](state, flag) {
+  [types.SET_FULL_SCREEN](state, flag) {
     state.fullScreen = flag
   },
   [types.SET_PLAYLIST](state, list) {
@@ -22,6 +22,15 @@ const mutations = {
   [types.SET_CURRENT_INDEX](state, index) {
     state.currentIndex = index
   },
+  [types.SET_DISC](state, disc) {
+    state.disc = disc
+  },
+  [types.SET_PLAY_HISTORY](state, history) {
+    state.playHistory = history
+  },
+  [types.SET_FAVORITE_LIST](state, list) {
+    state.favoriteList = list
+  }
 }
 
-export default mutations
+export default matutaions
