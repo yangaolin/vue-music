@@ -15,7 +15,7 @@
         <div class="middle">
           <div class="middle-l">
             <div class="cd-wrapper" ref="cdWrapper">
-              <div class="cd">
+              <div class="cd" :class="cdCls">
                 <img class="image" :src="currentSong.image">
               </div>
             </div>
@@ -26,14 +26,14 @@
             <div class="icon i-left">
               <i class="icon-sequence"></i>
             </div>
-            <div class="icon i-left">
-              <i class="icon-prev"></i>
+            <div class="icon i-left" :class="disableCls">
+              <i @click="prev" class="icon-prev"></i>
             </div>
-            <div class="icon i-center">
-              <i class="icon-play"></i>
+            <div class="icon i-center" :class="disableCls">
+              <i @click="togglePlaying" :class="playIcon"></i>
             </div>
-            <div class="icon i-right">
-              <i class="icon-next"></i>
+            <div class="icon i-right" :class="disableCls">
+              <i @click="next" class="icon-next"></i>
             </div>
             <div class="icon i-right">
               <i class="icon icon-not-favorite"></i>
@@ -45,19 +45,21 @@
     <transition name="mini">
       <div class="mini-player" v-show="!fullScreen" @click="open">
         <div class="icon">
-          <img width="40" height="40" :src="currentSong.image">
+          <img :class="cdCls" width="40" height="40" :src="currentSong.image">
         </div>
         <div class="text">
           <h2 class="name" v-html="currentSong.name"></h2>
           <p class="desc" v-html="currentSong.singer"></p>
         </div>
-        <div class="control"></div>
+        <div class="control">
+          <i :class="miniIcon" @click.stop="togglePlaying"></i>
+        </div>
         <div class="control">
           <i class="icon-playlist"></i>
         </div>
       </div>
     </transition>
-    <audio :src="currentSong.url" ref="audio"></audio>
+    <audio :src="currentSong.url" ref="audio" @canplay="ready" @error="error"></audio>
   </div> 
 </template>
 
@@ -76,21 +78,44 @@ import {prefixStyle} from 'common/js/dom'
 // const transitionDuration = prefixStyle('transitionDuration')
 
 export default {
+  data() {
+    return {
+      songReady: false
+    }
+  },
   computed: {
-    ...mapGetters(["fullScreen", "playlist", "currentSong"])
+    ...mapGetters(['fullScreen', 'playlist', 'currentSong','playing','currentIndex']),
+    playIcon() {
+      return this.playing ? 'icon-pause' : 'icon-play'
+    },
+    miniIcon() {
+      return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
+    },
+    cdCls() {
+      return this.playing ? 'play' : 'play pause'
+    },
+    disableCls() {
+      return this.songReady ? '' : 'disable'
+    }
   },
   watch: {
     currentSong() {
         this.$nextTick(()=>{
-
-          console.log(this.currentSong.url)
           this.$refs.audio.play()
         })
+    },
+    playing(newPlaying) {
+      const audio = this.$refs.audio
+      this.$nextTick(()=>{
+        newPlaying ? audio.play() : audio.pause()
+      })
     }
   },
   methods: {
     ...mapMutations({
-      setFullScreen: "SET_FULL_SCREEN"
+      setFullScreen: 'SET_FULL_SCREEN',
+      setPlayingState: 'SET_PLAYING_STATE',
+      setCurrentIndex: 'SET_CURRENT_INDEX'
     }),
     back() {
       this.setFullScreen(false)
@@ -137,6 +162,46 @@ export default {
     afterLeave() {
       this.$refs.cdWrapper.style.transition = ''
       this.$refs.cdWrapper.style[transform] = ''
+    },
+    togglePlaying() {
+      if(!this.songReady){
+        return
+      }
+      this.setPlayingState(!this.playing)
+    },
+    next() {
+      if(!this.songReady){
+        return
+      }
+      let index = this.currentIndex + 1
+      if(index === this.playlist.length){
+        index = 0
+      }
+      this.setCurrentIndex(index)
+      if(!this.playing){
+        this.togglePlaying()
+      }
+      this.songReady = false
+    },
+    prev() {
+      if(!this.songReady){
+        return
+      }
+      let index = this.currentIndex - 1
+      if(index === -1){
+        index = this.playlist.length -1
+      }
+      this.setCurrentIndex(index)
+      if(!this.playing){
+        this.togglePlaying()
+      }
+      this.songReady = false
+    },
+    ready() {
+      this.songReady = true
+    },
+    error() {
+      this.songReady = true
     },
     _getPosAndScale() {
       const targetWidth = 40
