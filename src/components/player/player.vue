@@ -22,6 +22,13 @@
           </div>
         </div>
         <div class="bottom">
+          <div class="progress-wrapper">
+            <span class="time time-l">{{format(currentTime)}}</span>
+            <div class="progress-bar-wrapper">
+              <progress-bar :percent="percent"></progress-bar>
+            </div>
+            <span class="time time-r">{{format(currentSong.duration)}}</span>
+          </div>
           <div class="operators">
             <div class="icon i-left">
               <i class="icon-sequence"></i>
@@ -59,7 +66,7 @@
         </div>
       </div>
     </transition>
-    <audio :src="currentSong.url" ref="audio" @canplay="ready" @error="error"></audio>
+    <audio :src="currentSong.url" ref="audio" @canplay="ready" @error="error" @timeupdate="updateTime"></audio>
   </div> 
 </template>
 
@@ -67,7 +74,7 @@
 import { mapGetters, mapMutations } from "vuex"
 import animations from 'create-keyframe-animation'
 import {prefixStyle} from 'common/js/dom'
-// import ProgressBar from 'base/progress-bar/progress-bar'
+import ProgressBar from 'base/progress-bar/progress-bar'
 // import ProgressCircle from 'base/progress-circle/progress-circle'
 // import {playMode} from 'common/js/config'
 // import {shuffle} from 'common/js/util'
@@ -80,8 +87,12 @@ import {prefixStyle} from 'common/js/dom'
 export default {
   data() {
     return {
-      songReady: false
+      songReady: false,
+      currentTime: 0
     }
+  },
+  components:{
+    ProgressBar
   },
   computed: {
     ...mapGetters(['fullScreen', 'playlist', 'currentSong','playing','currentIndex']),
@@ -96,6 +107,9 @@ export default {
     },
     disableCls() {
       return this.songReady ? '' : 'disable'
+    },
+    percent() {
+      return this.currentTime / this.currentSong.duration
     }
   },
   watch: {
@@ -202,6 +216,24 @@ export default {
     },
     error() {
       this.songReady = true
+    },
+    updateTime(e) {
+      this.currentTime = e.target.currentTime
+    },
+    format(interval){
+      interval = interval | 0
+      const minute = interval / 60  | 0
+      const second = this._pad(interval % 60)
+      return `${minute}:${second}`
+    },
+    _pad(num, n = 2) {
+      // let len = num.toString().length
+      // while (len < n) {
+      //   num = '0' + num
+      //   len ++
+      // }
+      num = num.toString().padStart(2,'0')
+      return num
     },
     _getPosAndScale() {
       const targetWidth = 40
